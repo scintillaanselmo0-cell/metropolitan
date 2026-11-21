@@ -115,8 +115,13 @@ function window3D(cx){const g=new T.Group();g.position.set(cx,sillY,0);facade.ad
   for(let y=0.6;y<straightH-0.25;y+=0.6)box(openW-0.14,0.055,0.1,M.frame,0,y,0.07,g);
 }
 centers.forEach(window3D);
-centers.forEach(cx=>{const m=new T.Mesh(new T.SphereGeometry(1,30,18,0,Math.PI*2,0,Math.PI*0.5),M.awning);m.scale.set(r+0.12,0.82,0.95);m.position.set(cx,archTopY-0.05,0.5);m.castShadow=true;facade.add(m);
-  const rib=new T.Mesh(new T.TorusGeometry(1,0.02,6,30,Math.PI),new T.MeshStandardMaterial({color:0x2c2c2c,roughness:.4}));rib.scale.set(r+0.12,0.82,0.95);rib.rotation.x=Math.PI/2;rib.position.set(cx,archTopY-0.05,0.5);facade.add(rib);});
+centers.forEach(cx=>{
+  const m=new T.Mesh(new T.SphereGeometry(1,44,24,0,Math.PI*2,0,Math.PI*0.5),M.awning);
+  m.scale.set(r+0.26,1.68,1.2);m.position.set(cx,archBaseY-0.12,0.5);m.castShadow=true;facade.add(m);
+  // thin bottom lip for definition
+  const lip=new T.Mesh(new T.CylinderGeometry(1,1,0.12,44,1,true),M.awning);
+  lip.scale.set(r+0.26,1,1.2);lip.position.set(cx,archBaseY-0.12,0.5);facade.add(lip);
+});
 box(33,0.7,1.7,M.white,0,GF_H+0.35,0.6);box(33,0.14,1.8,M.white,0,GF_H+0.72,0.64);
 const UP_Y=GF_H+0.7,UP_H=5.4,upZ=-0.3;box(31.5,UP_H,0.55,M.wall,0,UP_Y+UP_H/2,upZ);box(32,0.4,0.8,M.white,0,UP_Y+UP_H+0.12,upZ);
 [-8,0,8].forEach(x=>{box(2.6,2.9,0.22,M.frame,x,UP_Y+2.1,upZ+0.2);box(3.2,0.16,0.9,M.white,x,UP_Y+0.55,upZ+0.7);
