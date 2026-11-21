@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Teatro Metropolitan — Aversa sotto i riflettori</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#efe9dd; --ink:#161616; --gold:#c9a24a; --navy:#0a1330;
+    --serif:'Cormorant Garamond',Georgia,serif;
+    --sans:'Jost',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{font-family:var(--sans);color:var(--cream);background:#0b1020;overflow-x:hidden}
+
+  /* top bar */
+  .topbar{position:fixed;top:0;left:0;right:0;z-index:30;display:flex;align-items:center;justify-content:space-between;
+    padding:18px 28px;mix-blend-mode:difference}
+  .topbar img{height:34px;width:auto;filter:invert(1)}
+  .topbar nav{display:flex;gap:26px;font-size:13px;letter-spacing:.14em;text-transform:uppercase;font-weight:400}
+  .topbar nav a{color:#fff;text-decoration:none;opacity:.85}
+  .topbar nav a:hover{opacity:1}
+  @media(max-width:720px){.topbar nav{display:none}}
+
+  /* hero */
+  .hero{position:relative;height:260vh}
+  .stage{position:sticky;top:0;height:100vh;overflow:hidden}
+  .layer{position:absolute;inset:0;will-change:transform,opacity}
+  .facade{background:url('facade.jpg') center 42%/cover no-repeat;transform:scale(1.02);transform-origin:50% 46%}
+  /* night tint: darkens + blues the daytime photo */
+  .nightfall{background:
+      linear-gradient(180deg,#060a1e 0%,#0a1330 42%,#101a3a 100%);
+    mix-blend-mode:multiply;opacity:0}
+  .skyfade{background:linear-gradient(180deg,#05081a 0%,rgba(8,12,34,0) 38%);opacity:0}
+  /* warm glow rising from the window band */
+  .glow{background:
+      radial-gradient(120% 52% at 50% 57%, rgba(255,196,110,.55) 0%, rgba(255,170,70,.28) 34%, rgba(255,150,60,0) 62%);
+    mix-blend-mode:screen;opacity:0;transform:scale(.9);transform-origin:50% 57%}
+  .vignette{background:radial-gradient(130% 120% at 50% 48%, rgba(0,0,0,0) 52%, rgba(0,0,0,.55) 100%);opacity:.25}
+
+  .hero-ui{position:absolute;inset:0;z-index:10;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    text-align:center;padding:0 24px;will-change:transform,opacity}
+  .kicker{font-size:13px;letter-spacing:.42em;text-transform:uppercase;font-weight:400;opacity:.9;margin-bottom:22px}
+  .title{font-family:var(--serif);font-weight:500;font-size:clamp(44px,8vw,104px);line-height:.98;letter-spacing:.01em;
+    text-shadow:0 2px 40px rgba(0,0,0,.45)}
+  .title em{font-style:italic;color:var(--gold)}
+  .sub{margin-top:20px;font-size:clamp(14px,1.6vw,18px);font-weight:300;letter-spacing:.04em;max-width:540px;opacity:.92}
+  .cue{position:absolute;bottom:34px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;
+    gap:10px;font-size:11px;letter-spacing:.3em;text-transform:uppercase;opacity:.8}
+  .cue .bar{width:1px;height:46px;background:linear-gradient(#fff,transparent);animation:drop 1.8s ease-in-out infinite}
+  @keyframes drop{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}50.1%{transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
+
+  /* revealed section */
+  .program{position:relative;z-index:20;background:linear-gradient(180deg,#0a1330 0%,#0b1020 100%);
+    padding:120px 24px 130px;border-top:1px solid rgba(201,162,74,.22)}
+  .program .inner{max-width:1120px;margin:0 auto}
+  .eyebrow{text-align:center;font-size:12px;letter-spacing:.4em;text-transform:uppercase;color:var(--gold);margin-bottom:14px}
+  .program h2{text-align:center;font-family:var(--serif);font-weight:500;font-size:clamp(32px,5vw,58px);margin-bottom:54px}
+  .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:26px}
+  @media(max-width:820px){.cards{grid-template-columns:1fr}}
+  .card{background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.1);border-radius:14px;overflow:hidden;
+    transition:transform .4s ease,border-color .4s ease}
+  .card:hover{transform:translateY(-6px);border-color:rgba(201,162,74,.5)}
+  .card .ph{height:190px;background:linear-gradient(135deg,#182247,#0d1430);display:flex;align-items:flex-end;padding:16px}
+  .card .tag{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold)}
+  .card .body{padding:22px}
+  .card h3{font-family:var(--serif);font-size:26px;font-weight:500;margin-bottom:8px}
+  .card p{font-size:14px;font-weight:300;line-height:1.6;opacity:.8}
+  .cta{display:flex;justify-content:center;margin-top:60px}
+  .cta a{display:inline-block;padding:16px 42px;border:1px solid var(--gold);color:var(--cream);text-decoration:none;
+    font-size:13px;letter-spacing:.22em;text-transform:uppercase;border-radius:40px;transition:background .3s,color .3s}
+  .cta a:hover{background:var(--gold);color:#0b1020}
+
+  @media(prefers-reduced-motion:reduce){.cue .bar{animation:none}}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <img src="logo.png" alt="Teatro Metropolitan">
+  <nav>
+    <a href="#program">Stagione</a>
+    <a href="#">Il teatro</a>
+    <a href="#">Biglietteria</a>
+    <a href="#">Contatti</a>
+  </nav>
+</header>
+
+<section class="hero" id="hero">
+  <div class="stage">
+    <div class="layer facade"></div>
+    <div class="layer nightfall"></div>
+    <div class="layer skyfade"></div>
+    <div class="layer glow"></div>
+    <div class="layer vignette"></div>
+
+    <div class="hero-ui">
+      <div class="kicker">Aversa sotto i riflettori</div>
+      <h1 class="title">Il teatro<br><em>torna a vivere</em></h1>
+      <p class="sub">Un luogo storico che riapre il sipario. Scorri e lascia che le luci si accendano.</p>
+    </div>
+
+    <div class="cue"><span>Scorri</span><span class="bar"></span></div>
+  </div>
+</section>
+
+<section class="program" id="program">
+  <div class="inner">
+    <div class="eyebrow">La stagione 2026 / 2027</div>
+    <h2>Prossimi spettacoli</h2>
+    <div class="cards">
+      <article class="card"><div class="ph"><span class="tag">Prosa</span></div>
+        <div class="body"><h3>Nome spettacolo</h3><p>Breve descrizione dello spettacolo, compagnia e data. Testo segnaposto.</p></div></article>
+      <article class="card"><div class="ph"><span class="tag">Musica</span></div>
+        <div class="body"><h3>Nome concerto</h3><p>Breve descrizione dello spettacolo, compagnia e data. Testo segnaposto.</p></div></article>
+      <article class="card"><div class="ph"><span class="tag">Comedy</span></div>
+        <div class="body"><h3>Nome evento</h3><p>Breve descrizione dello spettacolo, compagnia e data. Testo segnaposto.</p></div></article>
+    </div>
+    <div class="cta"><a href="#">Scopri il cartellone</a></div>
+  </div>
+</section>
+
+<script>
+  var hero=document.getElementById('hero');
+  var facade=document.querySelector('.facade');
+  var night=document.querySelector('.nightfall');
+  var sky=document.querySelector('.skyfade');
+  var glow=document.querySelector('.glow');
+  var vig=document.querySelector('.vignette');
+  var ui=document.querySelector('.hero-ui');
+  var cue=document.querySelector('.cue');
+  var clamp=function(v,a,b){return v<a?a:(v>b?b:v)};
+  var ticking=false;
+  function frame(){
+    ticking=false;
+    var vh=window.innerHeight;
+    var top=hero.offsetTop;
+    var range=hero.offsetHeight-vh;
+    var p=clamp((window.scrollY-top)/range,0,1);
+    // day -> night
+    night.style.opacity=(p*0.86).toFixed(3);
+    sky.style.opacity=(clamp((p-0.1)/0.7,0,1)*0.9).toFixed(3);
+    // windows glow rises
+    var g=clamp((p-0.12)/0.78,0,1);
+    glow.style.opacity=(g*0.95).toFixed(3);
+    glow.style.transform='scale('+(0.9+g*0.28).toFixed(3)+')';
+    vig.style.opacity=(0.25+p*0.4).toFixed(3);
+    // slow push-in
+    facade.style.transform='scale('+(1.02+p*0.09).toFixed(3)+')';
+    // hero text fades out near the end
+    var fade=1-clamp((p-0.5)/0.4,0,1);
+    ui.style.opacity=fade.toFixed(3);
+    ui.style.transform='translateY('+(p*-40).toFixed(1)+'px)';
+    cue.style.opacity=(clamp(1-p*4,0,1)*0.8).toFixed(3);
+  }
+  function onScroll(){ if(!ticking){ticking=true;requestAnimationFrame(frame);} }
+  window.addEventListener('scroll',onScroll,{passive:true});
+  window.addEventListener('resize',onScroll);
+  frame();
+</script>
+</body>
+</html>
