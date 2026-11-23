@@ -244,15 +244,14 @@ box(26,0.4,37,M.idark,0,-0.2,-21.5,IN);box(26,0.4,37,M.idark,0,GF_H+1,-21.5,IN);
 box(0.4,GF_H+2,37,M.idark,-13,GF_H/2,-21.5,IN);box(0.4,GF_H+2,37,M.idark,13,GF_H/2,-21.5,IN);
 // REAL interior photo revealed at the end of the tunnel
 const photoTex=new T.TextureLoader().load(PHOTO);photoTex.colorSpace=T.SRGBColorSpace;
-const photo=new T.Mesh(new T.PlaneGeometry(25,25),new T.MeshBasicMaterial({map:photoTex,toneMapped:false}));
-photo.position.set(0,GF_H/2+1.1,-39.4);IN.add(photo);
-const haze=glowSprite(34,'rgba(220,20,40,.42)',.5);haze.position.set(0,5,-24);scene.add(haze);
+const PHOTO_Z=-39.4;
+const photo=new T.Mesh(new T.PlaneGeometry(1,1),new T.MeshBasicMaterial({map:photoTex,toneMapped:false}));
+photo.position.set(0,GF_H/2+1.1,PHOTO_Z);IN.add(photo);
 
 // ---------- lights ----------
 const key=new T.DirectionalLight(0xfff4e6,2.2);key.position.set(-16,26,22);key.castShadow=true;
 key.shadow.mapSize.set(2048,2048);const sc=key.shadow.camera;sc.left=-28;sc.right=28;sc.top=30;sc.bottom=-6;sc.near=1;sc.far=130;key.shadow.bias=-0.0003;scene.add(key);
 scene.add(new T.AmbientLight(0xffffff,0.07));
-const stageKey=new T.SpotLight(0xff5a66,4,40,0.5,0.6);stageKey.position.set(0,12,-30);stageKey.target.position.set(0,4,-38);scene.add(stageKey);scene.add(stageKey.target);
 
 // ---------- post: bloom ----------
 const composer=new EffectComposer(renderer);
@@ -271,7 +270,8 @@ const K=[
  {p:0.86,pos:[ENTRYX*0.4,5,-7],look:[0,5,-22]},
  {p:1.00,pos:[0,5.4,-16],look:[0,5.2,-36]},
 ];
-function computeStart(){const asp=innerWidth/innerHeight;K[0].pos[2]=Math.max(18,FRAME_HALF/(Math.tan(FOV*Math.PI/360)*asp));}
+function sizePhoto(){const d=Math.abs(PHOTO_Z-K[K.length-1].pos[2]);const hh=d*Math.tan(FOV*Math.PI/360);const hw=hh*(innerWidth/innerHeight);const S=2*Math.min(hh,hw)*0.95;photo.scale.set(S,S,1);}
+function computeStart(){const asp=innerWidth/innerHeight;K[0].pos[2]=Math.max(18,FRAME_HALF/(Math.tan(FOV*Math.PI/360)*asp));sizePhoto();}
 const sm=(a,b,t)=>{t=(t-a)/(b-a);t=Math.max(0,Math.min(1,t));return t*t*(3-2*t);};
 function sample(p){let i=0;while(i<K.length-1&&p>K[i+1].p)i++;const A=K[i],B=K[Math.min(i+1,K.length-1)];
   const t=A.p===B.p?0:sm(A.p,B.p,p);const L=(u,v)=>u+(v-u)*t;
