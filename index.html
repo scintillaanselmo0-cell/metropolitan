@@ -286,8 +286,8 @@ function staircase(side){const wallX=16.3*side,innerX=13.3*side,cx=(wallX+innerX
   const chk=new T.Mesh(new T.BoxGeometry(0.25,n*rise+1.0,n*run+0.4),IM.black);chk.position.set(innerX,n*rise/2+0.25,z0-n*run/2);chk.castShadow=true;IN.add(chk);
   const led=new T.Mesh(new T.BoxGeometry(0.06,0.06,n*run*1.2),IM.gled);led.position.set(innerX-0.16*side,n*rise/2+0.5,z0-n*run/2);led.rotation.x=Math.atan2(rise,run);IN.add(led);}
 staircase(-1);staircase(1);
-IN.add(Object.assign(new T.PointLight(0xffb267,1.0,30,2),{position:new T.Vector3(0,6.5,-7)}));
-IN.add(Object.assign(new T.PointLight(0xff3024,0.5,34,2),{position:new T.Vector3(0,2,-11)}));
+const iwl1=new T.PointLight(0xffb267,1.0,30,2);iwl1.position.set(0,6.5,-7);IN.add(iwl1);
+const iwl2=new T.PointLight(0xff3024,0.5,34,2);iwl2.position.set(0,2,-11);IN.add(iwl2);
 
 // ---------- lights ----------
 const key=new T.DirectionalLight(0xfff4e6,1.75);key.position.set(-16,26,22);key.castShadow=true;
