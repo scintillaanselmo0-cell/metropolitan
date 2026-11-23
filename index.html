@@ -253,13 +253,13 @@ const IM={
   black:new T.MeshStandardMaterial({color:0x0a0a0c,roughness:.3,metalness:.4,envMapIntensity:1}),
 };
 const iwShape=new T.Shape();iwShape.moveTo(-16.3,0);iwShape.lineTo(16.3,0);iwShape.lineTo(16.3,GF_H);iwShape.lineTo(-16.3,GF_H);iwShape.lineTo(-16.3,0);
-centers.forEach(cx=>{const pts=archShape(openW,straightH,r).getPoints(60).map(p=>new T.Vector2(p.x+cx,p.y+sill));iwShape.holes.push(new T.Path(pts));});
+centers.forEach(cx=>{const pts=archShape(openW,straightH,r).getPoints(60).map(p=>new T.Vector2(p.x+cx,p.y+sillY));iwShape.holes.push(new T.Path(pts));});
 const iwall=new T.Mesh(new T.ShapeGeometry(iwShape),IM.wall);iwall.position.z=-0.12;IN.add(iwall);
 const ifl=new T.Mesh(new T.PlaneGeometry(32.6,-BZ+1),IM.floor);ifl.rotation.x=-Math.PI/2;ifl.position.set(0,0.01,BZ/2);ifl.receiveShadow=true;IN.add(ifl);
 const icl=new T.Mesh(new T.PlaneGeometry(32.6,-BZ+1),IM.ceil);icl.rotation.x=Math.PI/2;icl.position.set(0,GF_H,BZ/2);IN.add(icl);
 box(32.6,GF_H,0.3,IM.wall,0,GF_H/2,BZ,IN);
 box(0.3,GF_H,-BZ,IM.wall,-16.3,GF_H/2,BZ/2,IN);box(0.3,GF_H,-BZ,IM.wall,16.3,GF_H/2,BZ/2,IN);
-centers.forEach(cx=>{const pts=archShape(openW+0.3,straightH+0.15,r+0.15).getPoints(90).map(p=>new T.Vector3(p.x+cx,p.y+sill,-0.2));IN.add(new T.Mesh(new T.TubeGeometry(new T.CatmullRomCurve3(pts,true),160,0.05,8,true),IM.gled));});
+centers.forEach(cx=>{const pts=archShape(openW+0.3,straightH+0.15,r+0.15).getPoints(90).map(p=>new T.Vector3(p.x+cx,p.y+sillY,-0.2));IN.add(new T.Mesh(new T.TubeGeometry(new T.CatmullRomCurve3(pts,true),160,0.05,8,true),IM.gled));});
 function panther(cx,z){const g=new T.Group();g.position.set(cx,0,z);g.rotation.y=Math.PI;const B=IM.black;
   const ha=new T.Mesh(new T.SphereGeometry(0.4,18,14),B);ha.scale.set(1,0.9,1.25);ha.position.set(0,0.4,-0.15);g.add(ha);
   const to=new T.Mesh(new T.SphereGeometry(0.32,18,14),B);to.scale.set(0.95,1.35,0.85);to.position.set(0,0.92,0.18);g.add(to);
