@@ -245,6 +245,8 @@ box(0.4,GF_H+2,37,M.idark,-13,GF_H/2,-21.5,IN);box(0.4,GF_H+2,37,M.idark,13,GF_H
 // REAL interior photo revealed at the end of the tunnel
 const photoTex=new T.TextureLoader().load(PHOTO);photoTex.colorSpace=T.SRGBColorSpace;
 const PHOTO_Z=-39.4;
+const backdrop=new T.Mesh(new T.PlaneGeometry(120,80),new T.MeshBasicMaterial({color:0x070406}));
+backdrop.position.set(0,GF_H/2+1.1,-39.9);IN.add(backdrop);
 const photo=new T.Mesh(new T.PlaneGeometry(1,1),new T.MeshBasicMaterial({map:photoTex,toneMapped:false}));
 photo.position.set(0,GF_H/2+1.1,PHOTO_Z);IN.add(photo);
 
