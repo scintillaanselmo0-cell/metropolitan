@@ -147,6 +147,7 @@ footer.ft{text-align:center;padding:30px;font-size:12px;opacity:.5;background:va
 
 <script type="module">
 import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
@@ -273,14 +274,8 @@ function panther(cx,z){const g=new T.Group();g.position.set(cx,0,z);g.rotation.y
   g.add(new T.Mesh(new T.TubeGeometry(tc,28,0.06,6),B));g.traverse(o=>o.castShadow=true);IN.add(g);}
 for(let i=1;i<=5;i++) panther(X0+i*bayW,-1.1);
 box(5.4,1.1,1.7,IM.white,0,0.55,-8,IN);box(5.8,0.14,2.0,IM.white,0,1.18,-8,IN);box(5.0,0.5,0.1,IM.white,0,0.35,-7.1,IN);
-(function(){const cz=-8,topY=GF_H-0.1,cl=new T.Group();cl.position.set(0,0,cz);
-  const rod=new T.Mesh(new T.CylinderGeometry(0.08,0.08,2.6,10),IM.brass);rod.position.y=topY-1.3;cl.add(rod);
-  [[2.1,topY-3.0],[1.6,topY-2.4],[1.1,topY-1.8],[0.6,topY-1.2]].forEach(([R,y])=>{const ring=new T.Mesh(new T.TorusGeometry(R,0.045,8,40),IM.brass);ring.rotation.x=Math.PI/2;ring.position.y=y;cl.add(ring);
-    const arms=10;for(let a=0;a<arms;a++){const ang=a/arms*Math.PI*2;
-      if(a%2===0){const bulb=new T.Mesh(new T.SphereGeometry(0.05,8,6),new T.MeshStandardMaterial({color:0x3a2a10,emissive:0xffcf8a,emissiveIntensity:2.0}));bulb.position.set(Math.cos(ang)*R,y+0.1,Math.sin(ang)*R);cl.add(bulb);}
-      for(let k=0;k<2;k++){const cr=new T.Mesh(new T.OctahedronGeometry(0.07-k*0.015),IM.crystal);cr.position.set(Math.cos(ang)*R,y-0.2-k*0.22,Math.sin(ang)*R);cl.add(cr);}}});
-  for(let i=0;i<10;i++){const cr=new T.Mesh(new T.OctahedronGeometry(0.09),IM.crystal);const a=Math.random()*6.28,rr=Math.random()*0.45;cr.position.set(Math.cos(a)*rr,topY-3.2-Math.random()*0.3,Math.sin(a)*rr);cl.add(cr);}
-  const p1=new T.PointLight(0xffcf8a,2.0,18,2);p1.position.set(0,topY-2.2,0);cl.add(p1);IN.add(cl);})();
+new GLTFLoader().load('chandelier.glb',g=>{const m=g.scene;m.scale.setScalar(1.5);m.position.set(0,4.9,-8);IN.add(m);},undefined,e=>console.warn('glb',e));
+const chLight=new T.PointLight(0xffcf8a,2.0,20,2);chLight.position.set(0,6.3,-8);IN.add(chLight);
 function staircase(side){const wallX=16.3*side,innerX=13.3*side,cx=(wallX+innerX)/2,n=11,rise=0.32,run=0.5,z0=-2.0;
   for(let i=0;i<n;i++){const z=z0-i*run,y=i*rise;box(3.0,0.14,run,IM.stairRed,cx,y+0.07,z,IN);box(3.0,rise,0.06,IM.black,cx,y-rise/2+0.07,z+run/2,IN);}
   const chk=new T.Mesh(new T.BoxGeometry(0.25,n*rise+1.0,n*run+0.4),IM.black);chk.position.set(innerX,n*rise/2+0.25,z0-n*run/2);chk.castShadow=true;IN.add(chk);
