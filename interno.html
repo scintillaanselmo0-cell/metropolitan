@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Metropolitan — Interno 3D (galleria)</title>
+<title>Metropolitan — Ingresso 3D</title>
 <style>
   html,body{margin:0;height:100%;overflow:hidden;background:#140407;font-family:system-ui,sans-serif}
   #app{position:fixed;inset:0}#app canvas{display:block}
@@ -16,8 +16,8 @@
 </script>
 </head>
 <body>
-<div id="load">Ricostruzione interno…</div>
-<div class="tag">Metropolitan · galleria interna</div>
+<div id="load">Ricostruzione ingresso…</div>
+<div class="tag">Metropolitan · ingresso · livello inferiore</div>
 <div class="hint">trascina per guardarti intorno · scorri per zoom</div>
 <div id="app"></div>
 <script type="module">
@@ -29,118 +29,141 @@ import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 const T=THREE;
-const renderer=new T.WebGLRenderer({antialias:true});renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio,1.75));
-renderer.shadowMap.enabled=true;renderer.shadowMap.type=T.PCFSoftShadowMap;renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=1.0;
+const renderer=new T.WebGLRenderer({antialias:true});renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio,1.7));
+renderer.shadowMap.enabled=true;renderer.shadowMap.type=T.PCFSoftShadowMap;renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=1.02;
 document.getElementById('app').appendChild(renderer.domElement);
 const scene=new T.Scene();scene.background=new T.Color(0x120406);
-const camera=new T.PerspectiveCamera(55,innerWidth/innerHeight,0.05,300);camera.position.set(-11,2.6,-1.5);
-const controls=new OrbitControls(camera,renderer.domElement);controls.target.set(0,3,3);controls.enableDamping=true;controls.dampingFactor=.08;
-controls.minDistance=2;controls.maxDistance=34;controls.maxPolarAngle=Math.PI*0.52;
+const camera=new T.PerspectiveCamera(52,innerWidth/innerHeight,0.05,300);camera.position.set(-12,3.3,5);
+const controls=new OrbitControls(camera,renderer.domElement);controls.target.set(1,2.6,-0.5);controls.enableDamping=true;controls.dampingFactor=.08;
+controls.minDistance=2;controls.maxDistance=40;controls.maxPolarAngle=Math.PI*0.52;
 const pmrem=new T.PMREMGenerator(renderer);scene.environment=pmrem.fromScene(new RoomEnvironment(),0.03).texture;
-scene.fog=new T.FogExp2(0x1a0509,0.012);
+scene.fog=new T.FogExp2(0x1a0509,0.009);
 
 const M={
-  wall:new T.MeshStandardMaterial({color:0x3c0b16,roughness:.9,metalness:0}),
-  wall2:new T.MeshStandardMaterial({color:0x320a13,roughness:.92}),
+  wall:new T.MeshStandardMaterial({color:0x3a0b15,roughness:.9,side:T.DoubleSide}),
   floor:new T.MeshStandardMaterial({color:0x4a0a12,roughness:.16,metalness:.35,envMapIntensity:1.3}),
-  ceil:new T.MeshStandardMaterial({color:0x180810,roughness:.95}),
-  frame:new T.MeshStandardMaterial({color:0x101013,roughness:.4,metalness:.85,envMapIntensity:1}),
-  day:new T.MeshBasicMaterial({color:0xcad8dc}),
-  gold:new T.MeshStandardMaterial({color:0x3a2a10,emissive:0xffb24a,emissiveIntensity:2.4,roughness:.5}),
-  red:new T.MeshStandardMaterial({color:0x3a0208,emissive:0xff2233,emissiveIntensity:2.2,roughness:.5}),
-  black:new T.MeshStandardMaterial({color:0x0c0c0f,roughness:.32,metalness:.4,envMapIntensity:1}),
-  stone:new T.MeshStandardMaterial({color:0x0e0e12,roughness:.25,metalness:.4,envMapIntensity:1.1}),
+  ceil:new T.MeshStandardMaterial({color:0x1c0b10,roughness:.95}),
+  frame:new T.MeshStandardMaterial({color:0x101013,roughness:.35,metalness:.85,envMapIntensity:1}),
+  day:new T.MeshBasicMaterial({color:0xccd9dd}),
+  gledMat:new T.MeshStandardMaterial({color:0x3a2a10,emissive:0xffab42,emissiveIntensity:2.6,roughness:.5}),
+  rled:new T.MeshStandardMaterial({color:0x3a0208,emissive:0xff2a30,emissiveIntensity:2.2,roughness:.5}),
+  white:new T.MeshStandardMaterial({color:0xece7dd,roughness:.5,metalness:0,envMapIntensity:.9}),
+  brass:new T.MeshStandardMaterial({color:0x7a5a22,roughness:.3,metalness:.95,envMapIntensity:1.2}),
+  crystal:new T.MeshPhysicalMaterial({color:0xffffff,roughness:.04,metalness:0,transmission:.95,thickness:.3,ior:1.6,transparent:true,emissive:0x5a3a12,emissiveIntensity:.5}),
+  glass:new T.MeshPhysicalMaterial({color:0xaac0c8,roughness:.07,metalness:0,transmission:.9,thickness:.4,transparent:true,opacity:.6}),
+  black:new T.MeshStandardMaterial({color:0x0a0a0c,roughness:.28,metalness:.4,envMapIntensity:1.1}),
   stairRed:new T.MeshStandardMaterial({color:0x5a0a12,roughness:.55}),
-  crystal:new T.MeshStandardMaterial({color:0x2a1c10,emissive:0xffcf8a,emissiveIntensity:1.6,roughness:.3}),
-  glass:new T.MeshPhysicalMaterial({color:0xaac0c8,roughness:.08,metalness:0,transmission:.9,thickness:.4,transparent:true,opacity:.6}),
 };
 function box(w,h,d,mat,x,y,z,p){const m=new T.Mesh(new T.BoxGeometry(w,h,d),mat);m.position.set(x,y,z);m.castShadow=true;m.receiveShadow=true;(p||scene).add(m);return m;}
 
-const LEN=26, H=8.6, Zf=5, Zb=-5;   // gallery length, height, front(window) wall, back wall
-// floor + ceiling
-const fl=new T.Mesh(new T.PlaneGeometry(LEN+2,12),M.floor);fl.rotation.x=-Math.PI/2;fl.position.set(0,0,0);fl.receiveShadow=true;scene.add(fl);
-const ce=new T.Mesh(new T.PlaneGeometry(LEN+2,12),M.ceil);ce.rotation.x=Math.PI/2;ce.position.set(0,H,0);scene.add(ce);
-// back wall + end walls
-box(LEN+2,H,0.3,M.wall2,0,H/2,Zb);box(0.3,H,12,M.wall2,-(LEN/2+0.8),H/2,0);box(0.3,H,12,M.wall2,(LEN/2+0.8),H/2,0);
+const H=8.6, Zf=6, Zb=-8, XW=13;
+// shell
+const fl=new T.Mesh(new T.PlaneGeometry(XW*2,Zf-Zb+2),M.floor);fl.rotation.x=-Math.PI/2;fl.position.set(0,0,(Zf+Zb)/2);fl.receiveShadow=true;scene.add(fl);
+const ce=new T.Mesh(new T.PlaneGeometry(XW*2,Zf-Zb+2),M.ceil);ce.rotation.x=Math.PI/2;ce.position.set(0,H,(Zf+Zb)/2);scene.add(ce);
+box(XW*2,H,0.3,M.wall,0,H/2,Zb);                       // back wall
+box(0.3,H,Zf-Zb,M.wall,-XW,H/2,(Zf+Zb)/2);box(0.3,H,Zf-Zb,M.wall,XW,H/2,(Zf+Zb)/2); // side walls
 
-// window wall (burgundy) with arched holes + daylight behind
+// ---- 6 arched glazed DOORS on the access wall (z=Zf) ----
 const nWin=6,bayW=3.7,pilW=0.92,openW=bayW-pilW,X0=-11.1;
-const sill=1.2,straightH=4.0,r=openW/2,archBaseY=sill+straightH,archTopY=archBaseY+r;
+const sill=0.15,straightH=5.4,r=openW/2,archBaseY=sill+straightH,archTopY=archBaseY+r;
 const centers=[];for(let i=0;i<nWin;i++)centers.push(X0+bayW/2+i*bayW);
-function archShape(w,h,rad){const s=new T.Shape(),hw=w/2;s.moveTo(-hw,0);s.lineTo(-hw,h);s.absarc(0,h,hw,Math.PI,0,true);s.lineTo(hw,0);s.lineTo(-hw,0);return s;}
-const wallShape=new T.Shape();wallShape.moveTo(-(LEN/2+1),0);wallShape.lineTo(LEN/2+1,0);wallShape.lineTo(LEN/2+1,H);wallShape.lineTo(-(LEN/2+1),H);wallShape.lineTo(-(LEN/2+1),0);
-centers.forEach(cx=>{const h=archShape(openW,straightH,r);const pts=h.getPoints(60).map(p=>new T.Vector2(p.x+cx,p.y+sill));wallShape.holes.push(new T.Path(pts));});
-const wallMesh=new T.Mesh(new T.ShapeGeometry(wallShape),new T.MeshStandardMaterial({color:0x3c0b16,roughness:.9,side:T.DoubleSide}));wallMesh.position.z=Zf;scene.add(wallMesh);
-// daylight plane behind window wall
-const day=new T.Mesh(new T.PlaneGeometry(LEN+2,H),M.day);day.position.set(0,H/2,Zf+0.5);scene.add(day);
-
-// per-window: black grid frame + gold LED arch outline
-function tubeFromShape(shape,cx,z,rad,mat){const pts=shape.getPoints(80).map(p=>new T.Vector3(p.x+cx,p.y+sill,z));const curve=new T.CatmullRomCurve3(pts,true);const g=new T.TubeGeometry(curve,160,rad,8,true);return new T.Mesh(g,mat);}
+function archShape(w,h){const s=new T.Shape(),hw=w/2;s.moveTo(-hw,0);s.lineTo(-hw,h);s.absarc(0,h,hw,Math.PI,0,true);s.lineTo(hw,0);s.lineTo(-hw,0);return s;}
+const wallShape=new T.Shape();wallShape.moveTo(-XW,0);wallShape.lineTo(XW,0);wallShape.lineTo(XW,H);wallShape.lineTo(-XW,H);wallShape.lineTo(-XW,0);
+centers.forEach(cx=>{const h=archShape(openW,straightH);const pts=h.getPoints(60).map(p=>new T.Vector2(p.x+cx,p.y+sill));wallShape.holes.push(new T.Path(pts));});
+const dw=new T.Mesh(new T.ShapeGeometry(wallShape),M.wall);dw.position.z=Zf;scene.add(dw);
+const day=new T.Mesh(new T.PlaneGeometry(XW*2,H),M.day);day.position.set(0,H/2,Zf+0.5);scene.add(day);
+function tubeFromShape(shape,cx,z,rad,mat){const pts=shape.getPoints(90).map(p=>new T.Vector3(p.x+cx,p.y+sill,z));const g=new T.TubeGeometry(new T.CatmullRomCurve3(pts,true),180,rad,8,true);return new T.Mesh(g,mat);}
 centers.forEach(cx=>{
-  // frame ring
-  const outer=archShape(openW,straightH,r),hole=archShape(openW-0.26,straightH-0.13,r-0.13);
+  const outer=archShape(openW,straightH),hole=archShape(openW-0.26,straightH-0.13);
   outer.holes.push(new T.Path(hole.getPoints(44).reverse().map(p=>new T.Vector2(p.x,p.y))));
-  const fr=new T.Mesh(new T.ExtrudeGeometry(outer,{depth:0.12,bevelEnabled:false}),M.frame);fr.position.set(cx,sill,Zf-0.12);scene.add(fr);
+  const fr=new T.Mesh(new T.ExtrudeGeometry(outer,{depth:0.14,bevelEnabled:false}),M.frame);fr.position.set(cx,sill,Zf-0.14);scene.add(fr);
+  // glass
+  const gl=new T.Mesh(new T.ShapeGeometry(archShape(openW-0.2,straightH-0.1)),M.glass);gl.position.set(cx,sill,Zf-0.07);scene.add(gl);
   // mullions
   const hw=openW/2;
-  for(let dx=-hw+0.5;dx<hw-0.1;dx+=0.55){const top=(dx>-r&&dx<r)?(straightH+Math.sqrt(Math.max(0,r*r-dx*dx))):straightH;box(0.05,top-0.02,0.06,M.frame,cx+dx,sill+(top-0.02)/2,Zf-0.05);}
-  for(let y=0.6;y<straightH;y+=0.62)box(openW-0.14,0.05,0.06,M.frame,cx,sill+y,Zf-0.05);
-  // gold LED arch outline (the glowing reveal)
-  const ledShape=archShape(openW+0.34,straightH+0.17,r+0.17);
-  scene.add(tubeFromShape(ledShape,cx,Zf-0.18,0.05,M.gold));
+  for(let dx=-hw+0.5;dx<hw-0.1;dx+=0.55){const top=(dx>-r&&dx<r)?(straightH+Math.sqrt(Math.max(0,r*r-dx*dx))):straightH;box(0.05,top-0.02,0.07,M.frame,cx+dx,sill+(top-0.02)/2,Zf-0.05);}
+  for(let y=0.7;y<straightH;y+=0.7)box(openW-0.14,0.05,0.07,M.frame,cx,sill+y,Zf-0.05);
+  // gold LED arch outline
+  scene.add(tubeFromShape(archShape(openW+0.32,straightH+0.16),cx,Zf-0.2,0.05,M.gledMat));
 });
-// warm cove along ceiling (front + back)
-box(LEN,0.08,0.08,M.gold,0,H-0.25,Zf-0.4);box(LEN,0.08,0.08,M.gold,0,H-0.25,Zb+0.4);
+// warm perimeter cove (ceiling edges)
+box(XW*2,0.08,0.08,M.gledMat,0,H-0.25,Zf-0.4);box(XW*2,0.08,0.08,M.gledMat,0,H-0.25,Zb+0.4);
+box(0.08,0.08,Zf-Zb,M.gledMat,-XW+0.4,H-0.25,(Zf+Zb)/2);box(0.08,0.08,Zf-Zb,M.gledMat,XW-0.4,H-0.25,(Zf+Zb)/2);
 
-// black panther statues (stylized, sitting) at each window base
-function panther(cx){const g=new T.Group();g.position.set(cx,0,Zf-0.9);
-  box(0.9,0.2,0.6,M.black,0,0.1,0,g);                               // base/haunches
-  const body=new T.Mesh(new T.SphereGeometry(0.42,20,16),M.black);body.scale.set(1,1.3,0.8);body.position.set(0,0.75,0.05);g.add(body);
-  const chest=new T.Mesh(new T.CylinderGeometry(0.16,0.28,1.0,16),M.black);chest.position.set(0,0.65,0.3);chest.rotation.x=0.25;g.add(chest);
-  const head=new T.Mesh(new T.SphereGeometry(0.24,18,14),M.black);head.position.set(0,1.25,0.42);g.add(head);
-  box(0.1,0.1,0.14,M.black,-0.1,1.45,0.42,g);box(0.1,0.1,0.14,M.black,0.1,1.45,0.42,g); // ears
-  const front=new T.Mesh(new T.CylinderGeometry(0.1,0.1,0.75,12),M.black);front.position.set(0.0,0.38,0.52);g.add(front);
-  g.traverse(o=>o.castShadow=true);scene.add(g);}
-centers.forEach(panther);
+// ---- black panther statues (sitting) between the doors ----
+function panther(cx,z){const g=new T.Group();g.position.set(cx,0,z);
+  const haunch=new T.Mesh(new T.SphereGeometry(0.42,20,16),M.black);haunch.scale.set(1,0.9,1.25);haunch.position.set(0,0.42,-0.15);g.add(haunch);
+  const torso=new T.Mesh(new T.SphereGeometry(0.34,20,16),M.black);torso.scale.set(0.95,1.35,0.85);torso.position.set(0,0.95,0.18);g.add(torso);
+  const chest=new T.Mesh(new T.SphereGeometry(0.26,18,14),M.black);chest.scale.set(1,1.1,1);chest.position.set(0,1.2,0.34);g.add(chest);
+  const neck=new T.Mesh(new T.CylinderGeometry(0.14,0.2,0.4,14),M.black);neck.position.set(0,1.5,0.34);neck.rotation.x=0.2;g.add(neck);
+  const head=new T.Mesh(new T.SphereGeometry(0.22,18,14),M.black);head.scale.set(1,0.95,1.1);head.position.set(0,1.72,0.42);g.add(head);
+  const muz=new T.Mesh(new T.SphereGeometry(0.11,14,12),M.black);muz.scale.set(1,0.8,1.2);muz.position.set(0,1.66,0.6);g.add(muz);
+  for(const s of [-1,1]){const ear=new T.Mesh(new T.ConeGeometry(0.07,0.14,10),M.black);ear.position.set(0.1*s,1.9,0.4);g.add(ear);}
+  for(const s of [-1,1]){const leg=new T.Mesh(new T.CylinderGeometry(0.1,0.12,0.95,12),M.black);leg.position.set(0.16*s,0.48,0.55);g.add(leg);
+    const paw=new T.Mesh(new T.SphereGeometry(0.13,12,10),M.black);paw.scale.set(1,0.6,1.3);paw.position.set(0.16*s,0.08,0.66);g.add(paw);}
+  // tail (curved tube)
+  const tc=new T.CatmullRomCurve3([new T.Vector3(0,0.4,-0.5),new T.Vector3(0.4,0.3,-0.6),new T.Vector3(0.6,0.8,-0.3),new T.Vector3(0.5,1.3,0.1)]);
+  g.add(new T.Mesh(new T.TubeGeometry(tc,32,0.06,8),M.black));
+  g.traverse(o=>{o.castShadow=true;});scene.add(g);}
+for(let i=1;i<=5;i++) panther(X0+i*bayW, Zf-1.0);
 
-// chandeliers (clusters of warm crystals)
-function chandelier(x,z){const g=new T.Group();g.position.set(x,0,z);
-  box(0.03,1.4,0.03,M.black,0,H-0.7,0,g);
-  for(let i=0;i<26;i++){const a=i/26*Math.PI*2,ry=0.5+Math.random()*0.5,rr=0.3+0.5*Math.random();
-    const c=new T.Mesh(new T.OctahedronGeometry(0.06+Math.random()*0.05),M.crystal);
-    c.position.set(Math.cos(a)*rr,H-1.0-ry,Math.sin(a)*rr);g.add(c);}
-  const pl=new T.PointLight(0xffcf8a,1.2,10,2);pl.position.set(0,H-1.4,0);g.add(pl);scene.add(g);}
-chandelier(-6,0.6);chandelier(6,0.6);
+// ---- white central reception counter ----
+(function(){const cx=0,cz=-0.5;box(5.4,1.1,1.7,M.white,cx,0.55,cz);box(5.8,0.14,2.0,M.white,cx,1.18,cz);
+  box(5.0,0.5,0.1,M.white,cx,0.35,cz+0.9);})();
 
-// bar counter (black marble) with red underglow
-(function(){const bx=-9.5,bz=-2.6;box(5,1.15,1.4,M.stone,bx,0.58,bz);box(5.3,0.12,1.7,M.stone,bx,1.2,bz);
-  box(4.6,0.14,1.0,M.red,bx,0.12,bz);                       // red underglow strip near floor
-  const pl=new T.PointLight(0xff2233,2,7,2);pl.position.set(bx,0.4,bz+0.9);scene.add(pl);})();
-
-// side staircase (red steps, black risers) rising at the +x back corner, glass balustrade
-(function(){const sx=9.0,sz=-2.2,n=10,rise=0.32,run=0.42;const g=new T.Group();
-  for(let i=0;i<n;i++){box(2.2,0.14,run,M.stairRed,sx,i*rise+0.07,sz-i*run);box(2.2,rise,0.06,M.black,sx,i*rise-rise/2+0.07,sz-i*run+run/2);}
-  // handrail + warm underline + glass
-  const hr=new T.Mesh(new T.BoxGeometry(0.08,0.08,n*run*1.42),M.black);hr.position.set(sx+1.0,n*rise*0.5+0.9,sz-n*run/2);hr.rotation.x=Math.atan2(rise,run);scene.add(hr);
-  const led=new T.Mesh(new T.BoxGeometry(0.05,0.05,n*run*1.42),M.gold);led.position.set(sx+1.0,n*rise*0.5+0.55,sz-n*run/2);led.rotation.x=Math.atan2(rise,run);scene.add(led);
-  const gl=new T.Mesh(new T.BoxGeometry(0.03,0.9,n*run*1.42),M.glass);gl.position.set(sx+1.0,n*rise*0.5+0.45,sz-n*run/2);gl.rotation.x=Math.atan2(rise,run);scene.add(gl);
+// ---- central crystal chandelier ----
+(function(){const cx=0,cz=-0.5,topY=H-0.1,cl=new T.Group();cl.position.set(cx,0,cz);
+  // central rod
+  const rod=new T.Mesh(new T.CylinderGeometry(0.08,0.08,3.0,12),M.brass);rod.position.y=topY-1.5;cl.add(rod);
+  const tiers=[[2.4,topY-3.2],[1.9,topY-2.6],[1.35,topY-2.0],[0.75,topY-1.4]];
+  tiers.forEach(([R,y],ti)=>{
+    const ring=new T.Mesh(new T.TorusGeometry(R,0.045,10,48),M.brass);ring.rotation.x=Math.PI/2;ring.position.y=y;cl.add(ring);
+    const arms=10+ti*2;
+    for(let a=0;a<arms;a++){const ang=a/arms*Math.PI*2;
+      const arm=new T.Mesh(new T.CylinderGeometry(0.02,0.02,R,8),M.brass);arm.position.set(Math.cos(ang)*R/2,y+0.05,Math.sin(ang)*R/2);arm.rotation.z=Math.PI/2;arm.rotation.y=-ang;cl.add(arm);
+      // candle light + warm sphere on the ring
+      const bulb=new T.Mesh(new T.SphereGeometry(0.05,10,8),new T.MeshStandardMaterial({color:0x3a2a10,emissive:0xffcf8a,emissiveIntensity:2.2}));bulb.position.set(Math.cos(ang)*R,y+0.12,Math.sin(ang)*R);cl.add(bulb);
+      // crystal pendant strings
+      const strands=1+(ti<2?1:0);
+      for(let s=0;s<strands;s++){const rr=R-0.15*s;for(let k=0;k<3;k++){const cr=new T.Mesh(new T.OctahedronGeometry(0.07-k*0.012),M.crystal);cr.position.set(Math.cos(ang)*rr,y-0.18-k*0.22,Math.sin(ang)*rr);cl.add(cr);}}
+    }
+  });
+  // bottom finial cluster
+  for(let i=0;i<14;i++){const cr=new T.Mesh(new T.OctahedronGeometry(0.09+Math.random()*0.05),M.crystal);const a=Math.random()*6.28,rr=Math.random()*0.5;cr.position.set(Math.cos(a)*rr,topY-3.5-Math.random()*0.4,Math.sin(a)*rr);cl.add(cr);}
+  // warm light sources
+  const p1=new T.PointLight(0xffcf8a,2.2,16,2);p1.position.set(0,topY-2.4,0);cl.add(p1);
+  const p2=new T.PointLight(0xffb267,1.2,20,2);p2.position.set(0,topY-3.4,0);cl.add(p2);
+  scene.add(cl);
 })();
 
-// a few black ottomans + feather plumes
-function lounge(x,z){const o=new T.Mesh(new T.CylinderGeometry(0.5,0.5,0.9,20),M.black);o.position.set(x,0.45,z);o.castShadow=true;scene.add(o);
-  box(0.04,1.4,0.04,M.black,x+0.7,0.7,z);const pl=new T.Mesh(new T.SphereGeometry(0.4,12,10),new T.MeshStandardMaterial({color:0xefe9dd,roughness:.9}));pl.scale.set(1,0.7,1);pl.position.set(x+0.7,1.5,z);scene.add(pl);}
-lounge(-3,-2.5);lounge(2.5,-2.8);
+// ---- two straight lateral staircases against the side walls ----
+function staircase(side){ // side=-1 left, +1 right
+  const g=new T.Group();const wallX=XW*side, innerX=(XW-3)*side, cx=(wallX+innerX)/2;
+  const n=11,rise=0.32,run=0.5,z0=3.5;
+  for(let i=0;i<n;i++){const z=z0-i*run, y=i*rise;
+    box(3.0,0.14,run,M.stairRed,cx,y+0.07,z,g);          // tread
+    box(3.0,rise,0.06,M.black,cx,y-rise/2+0.07,z+run/2,g); // riser
+  }
+  // black cheek wall on the inner side (stringer)
+  const chk=new T.Mesh(new T.BoxGeometry(0.25,n*rise+1.2,n*run+0.4),M.black);
+  chk.position.set(innerX,n*rise/2+0.3,z0-n*run/2);g.add(chk);
+  // warm LED strip along the cheek
+  const led=new T.Mesh(new T.BoxGeometry(0.06,0.06,n*run*1.2),M.gledMat);
+  led.position.set(innerX-0.16*side,n*rise/2+0.55,z0-n*run/2);led.rotation.x=Math.atan2(rise,run);g.add(led);
+  g.traverse(o=>{o.castShadow=true;o.receiveShadow=true;});scene.add(g);
+}
+staircase(-1);staircase(1);
 
-// lights
-scene.add(new T.AmbientLight(0x3a1016,0.5));
-const warm=new T.PointLight(0xffb267,1.4,30,2);warm.position.set(0,7,0);scene.add(warm);
-const red=new T.PointLight(0xff2a2a,0.6,34,2);red.position.set(0,2,-3);scene.add(red);
-const key=new T.DirectionalLight(0xffd9b0,0.5);key.position.set(-6,10,8);key.castShadow=true;key.shadow.mapSize.set(2048,2048);
-const sc=key.shadow.camera;sc.left=-16;sc.right=16;sc.top=10;sc.bottom=-2;sc.near=1;sc.far=60;scene.add(key);
+// ---- lights ----
+scene.add(new T.AmbientLight(0x3a1016,0.45));
+const warm=new T.PointLight(0xffb267,1.1,36,2);warm.position.set(0,7,-0.5);scene.add(warm);
+const fillR=new T.PointLight(0xff2a2a,0.5,40,2);fillR.position.set(0,2,-4);scene.add(fillR);
+const key=new T.DirectionalLight(0xffe0b0,0.55);key.position.set(-8,11,10);key.castShadow=true;key.shadow.mapSize.set(2048,2048);
+const sc=key.shadow.camera;sc.left=-16;sc.right=16;sc.top=11;sc.bottom=-2;sc.near=1;sc.far=60;scene.add(key);
 
-// post
+// ---- post ----
 const composer=new EffectComposer(renderer);composer.addPass(new RenderPass(scene,camera));
-composer.addPass(new UnrealBloomPass(new T.Vector2(innerWidth,innerHeight),0.75,0.6,0.55));
+composer.addPass(new UnrealBloomPass(new T.Vector2(innerWidth,innerHeight),0.7,0.6,0.6));
 composer.addPass(new OutputPass());
 addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);composer.setSize(innerWidth,innerHeight);});
 document.getElementById('load').style.display='none';
