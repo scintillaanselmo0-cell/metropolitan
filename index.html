@@ -38,6 +38,12 @@
   #load{position:fixed;inset:0;z-index:9;display:flex;align-items:center;justify-content:center;background:#f4f2ec;color:#9a968d;
     font:400 13px 'Anton';letter-spacing:.35em;text-transform:uppercase;transition:opacity .8s}
 </style>
+<script type="importmap">
+{"imports":{
+  "three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+}}
+</script>
 </head>
 <body>
 <div id="load">Caricamento</div>
@@ -59,31 +65,44 @@
 <div class="cue" id="cue">Scorri</div>
 <div id="scroller"></div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script>
+<script type="module">
+import * as THREE from 'three';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+
 const T=THREE;
-const scene=new T.Scene();
 const renderer=new T.WebGLRenderer({antialias:true});
-renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio,1.75));
 renderer.shadowMap.enabled=true;renderer.shadowMap.type=T.PCFSoftShadowMap;
-renderer.outputEncoding=T.sRGBEncoding;renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=1.05;
+renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=1.0;
 document.getElementById('stage').appendChild(renderer.domElement);
-const FOV=40;
-const camera=new T.PerspectiveCamera(FOV,innerWidth/innerHeight,0.05,500);
-scene.background=new T.Color(0xf4f2ec);
-scene.fog=new T.FogExp2(0xece9e2,0.005);
+
+const scene=new T.Scene();
+(function(){const c=document.createElement('canvas');c.width=4;c.height=512;const g=c.getContext('2d');
+  const gr=g.createLinearGradient(0,0,0,512);gr.addColorStop(0,'#d6d5d0');gr.addColorStop(.5,'#e8e6df');gr.addColorStop(1,'#f5f3ed');
+  g.fillStyle=gr;g.fillRect(0,0,4,512);const t=new T.CanvasTexture(c);t.colorSpace=T.SRGBColorSpace;scene.background=t;})();
+const FOV=40;const camera=new T.PerspectiveCamera(FOV,innerWidth/innerHeight,0.05,500);
+
+// image-based lighting (soft studio reflections)
+const pmrem=new T.PMREMGenerator(renderer);
+scene.environment=pmrem.fromScene(new RoomEnvironment(),0.04).texture;
+scene.fog=new T.FogExp2(0xe6e4dd,0.0022);
 
 const M={
-  wall:new T.MeshStandardMaterial({color:0xf1efe8,roughness:.95}),
-  white:new T.MeshStandardMaterial({color:0xf7f5ef,roughness:.85}),
-  frame:new T.MeshStandardMaterial({color:0xb3b0a8,roughness:.5,metalness:.2}),
-  awning:new T.MeshStandardMaterial({color:0x141414,roughness:.4,metalness:.3}),
-  plinth:new T.MeshStandardMaterial({color:0xb8b5ad,roughness:.6}),
-  marble:new T.MeshStandardMaterial({color:0xefece6,roughness:.6}),
-  glass:new T.MeshStandardMaterial({color:0xdde6e8,roughness:.1,metalness:.3,transparent:true,opacity:.5}),
-  // interior
-  idark:new T.MeshStandardMaterial({color:0x14101a,roughness:.95}),
-  curtain:new T.MeshStandardMaterial({color:0x6e0512,roughness:.85,emissive:0xb0101f,emissiveIntensity:.9}),
+  wall:new T.MeshStandardMaterial({color:0xe6e2d8,roughness:.9,metalness:0,envMapIntensity:.4}),
+  white:new T.MeshStandardMaterial({color:0xf0ede5,roughness:.72,metalness:0,envMapIntensity:.5}),
+  frame:new T.MeshStandardMaterial({color:0x17171a,roughness:.3,metalness:.9,envMapIntensity:1.1}),
+  marble:new T.MeshStandardMaterial({color:0xece9e2,roughness:.18,metalness:0,envMapIntensity:1.2}),
+  glass:new T.MeshPhysicalMaterial({color:0xcdd9dc,roughness:.06,metalness:0,transmission:.9,thickness:.6,ior:1.45,
+         transparent:true,opacity:1,envMapIntensity:1.3,clearcoat:.4,clearcoatRoughness:.1}),
+  awning:new T.MeshPhysicalMaterial({color:0x121214,roughness:.42,metalness:.2,clearcoat:.7,clearcoatRoughness:.3,
+         envMapIntensity:1.0,side:T.DoubleSide}),
+  plinth:new T.MeshStandardMaterial({color:0x1a1a1d,roughness:.4,metalness:.5,envMapIntensity:.9}),
+  idark:new T.MeshStandardMaterial({color:0x160f16,roughness:.95,metalness:0}),
+  curtain:new T.MeshStandardMaterial({color:0x5e0410,roughness:.85,emissive:0xd01423,emissiveIntensity:1.4}),
 };
 function box(w,h,d,mat,x,y,z,p){const m=new T.Mesh(new T.BoxGeometry(w,h,d),mat);m.position.set(x,y,z);m.castShadow=true;m.receiveShadow=true;(p||scene).add(m);return m;}
 function glowSprite(size,color,op){const c=document.createElement('canvas');c.width=c.height=128;const g=c.getContext('2d');
@@ -95,13 +114,18 @@ const nWin=6,bayW=3.7,pilW=0.92,openW=bayW-pilW;
 const X0=-11.1,sillY=0.5,straightH=5.6,r=openW/2;
 const archBaseY=sillY+straightH,archTopY=archBaseY+r,GF_H=8.4;
 const centers=[];for(let i=0;i<nWin;i++)centers.push(X0+bayW/2+i*bayW);
-const ENTRYX=centers[3]; // 1.85
+const ENTRYX=centers[3];
 const facade=new T.Group();scene.add(facade);
-for(let i=0;i<=nWin;i++){const x=X0+i*bayW;box(pilW,GF_H,0.7,M.wall,x,GF_H/2,0);}
-box(4.3,GF_H,0.55,M.wall,-13.9,GF_H/2,-0.07);box(4.3,GF_H,0.55,M.wall,13.9,GF_H/2,-0.07); // symmetric end panels
-box(32.5,GF_H-archTopY,0.5,M.wall,0,(archTopY+GF_H)/2,-0.02);
-box(33,0.35,7,M.marble,0,0.0,1.2);
 function archShape(w,h,rad){const s=new T.Shape(),hw=w/2;s.moveTo(-hw,0);s.lineTo(-hw,h);s.absarc(0,h,hw,Math.PI,0,true);s.lineTo(hw,0);s.lineTo(-hw,0);return s;}
+// solid facade wall with real ARCHED openings (no rectangular corners around the windows)
+const wallShape=new T.Shape();
+wallShape.moveTo(-16.25,0);wallShape.lineTo(16.25,0);wallShape.lineTo(16.25,GF_H);wallShape.lineTo(-16.25,GF_H);wallShape.lineTo(-16.25,0);
+centers.forEach(cx=>{const h=archShape(openW,straightH,r);const pts=h.getPoints(64).map(p=>new T.Vector2(p.x+cx,p.y+sillY));wallShape.holes.push(new T.Path(pts));});
+const wallMesh=new T.Mesh(new T.ExtrudeGeometry(wallShape,{depth:0.55,bevelEnabled:false}),M.wall);
+wallMesh.position.z=-0.55;wallMesh.castShadow=true;wallMesh.receiveShadow=true;facade.add(wallMesh);
+// slim pilasters as forward relief between windows
+for(let i=0;i<=nWin;i++){const x=X0+i*bayW;box(pilW*0.7,GF_H,0.3,M.white,x,GF_H/2,0.14);}
+box(33,0.35,7,M.marble,0,0.0,1.2);
 const entryGlass=[];
 function window3D(cx){const g=new T.Group();g.position.set(cx,sillY,0);facade.add(g);
   box(openW+0.12,sillY+0.02,0.55,M.plinth,0,-sillY/2,0,g);
@@ -109,19 +133,17 @@ function window3D(cx){const g=new T.Group();g.position.set(cx,sillY,0);facade.ad
   if(Math.abs(cx-ENTRYX)<0.01)entryGlass.push(glass);
   const outer=archShape(openW,straightH,r),hole=archShape(openW-0.22,straightH-0.11,r-0.11);
   outer.holes.push(new T.Path(hole.getPoints(44).reverse().map(p=>new T.Vector2(p.x,p.y))));
-  const fr=new T.Mesh(new T.ExtrudeGeometry(outer,{depth:0.18,bevelEnabled:false}),M.frame);fr.position.z=-0.02;g.add(fr);
+  const fr=new T.Mesh(new T.ExtrudeGeometry(outer,{depth:0.18,bevelEnabled:false}),M.frame);fr.position.z=-0.02;fr.castShadow=true;g.add(fr);
   const hw=openW/2;
   for(let dx=-hw+0.42;dx<hw-0.08;dx+=0.46){const top=(dx>-r&&dx<r)?(archBaseY-sillY+Math.sqrt(Math.max(0,r*r-dx*dx))):straightH;box(0.055,top-0.02,0.1,M.frame,dx,(top-0.02)/2,0.07,g);}
   for(let y=0.6;y<straightH-0.25;y+=0.6)box(openW-0.14,0.055,0.1,M.frame,0,y,0.07,g);
 }
 centers.forEach(window3D);
-centers.forEach(cx=>{
-  const m=new T.Mesh(new T.SphereGeometry(1,44,24,0,Math.PI*2,0,Math.PI*0.5),M.awning);
-  m.scale.set(r+0.26,1.68,1.2);m.position.set(cx,archBaseY-0.12,0.5);m.castShadow=true;facade.add(m);
-  // thin bottom lip for definition
-  const lip=new T.Mesh(new T.CylinderGeometry(1,1,0.12,44,1,true),M.awning);
-  lip.scale.set(r+0.26,1,1.2);lip.position.set(cx,archBaseY-0.12,0.5);facade.add(lip);
-});
+
+// awnings — quarter-dome: flat back to wall, semicircular front over the arch, open underside
+const awnGeo=new T.SphereGeometry(1,40,20,0,Math.PI,0,Math.PI*0.5);
+centers.forEach(cx=>{const m=new T.Mesh(awnGeo,M.awning);m.scale.set(r+0.30,r+0.30,0.98);m.position.set(cx,archBaseY,0.42);m.castShadow=true;m.receiveShadow=true;facade.add(m);});
+
 box(33,0.7,1.7,M.white,0,GF_H+0.35,0.6);box(33,0.14,1.8,M.white,0,GF_H+0.72,0.64);
 const UP_Y=GF_H+0.7,UP_H=5.4,upZ=-0.3;box(31.5,UP_H,0.55,M.wall,0,UP_Y+UP_H/2,upZ);box(32,0.4,0.8,M.white,0,UP_Y+UP_H+0.12,upZ);
 [-8,0,8].forEach(x=>{box(2.6,2.9,0.22,M.frame,x,UP_Y+2.1,upZ+0.2);box(3.2,0.16,0.9,M.white,x,UP_Y+0.55,upZ+0.7);
@@ -129,15 +151,13 @@ const UP_Y=GF_H+0.7,UP_H=5.4,upZ=-0.3;box(31.5,UP_H,0.55,M.wall,0,UP_Y+UP_H/2,up
 (function(){const CW=1024,CH=330;const c=document.createElement('canvas');c.width=CW;c.height=CH;const g=c.getContext('2d');
   g.fillStyle='#101010';g.textAlign='center';g.textBaseline='alphabetic';
   g.font='600 60px Georgia,serif';g.fillText('TEATRO',CW/2,110);
-  let fs=150;g.font='600 '+fs+'px Georgia,serif';const w=g.measureText('METROPOLITAN').width;
-  if(w>960){fs=Math.floor(fs*960/w);g.font='600 '+fs+'px Georgia,serif';}
-  g.fillText('METROPOLITAN',CW/2,270);
-  const tx=new T.CanvasTexture(c);tx.anisotropy=8;
+  let fs=150;g.font='600 '+fs+'px Georgia,serif';const w=g.measureText('METROPOLITAN').width;if(w>960){fs=Math.floor(fs*960/w);g.font='600 '+fs+'px Georgia,serif';}
+  g.fillText('METROPOLITAN',CW/2,270);const tx=new T.CanvasTexture(c);tx.anisotropy=8;tx.colorSpace=T.SRGBColorSpace;
   const p=new T.Mesh(new T.PlaneGeometry(3.9,3.9*CH/CW),new T.MeshStandardMaterial({map:tx,transparent:true,roughness:.7}));p.position.set(13.9,5.3,0.24);facade.add(p);})();
 for(let i=0;i<5;i++)box(22+i*2.0,0.3,1.0,M.marble,0,0.15-i*0.3,1.6+i*1.0);
 const gp=new T.Mesh(new T.PlaneGeometry(400,400),M.marble);gp.rotation.x=-Math.PI/2;gp.position.y=-0.95;gp.receiveShadow=true;scene.add(gp);
 
-// ---------- interior: red lives here ----------
+// ---------- interior (red) ----------
 const IN=new T.Group();scene.add(IN);
 box(26,0.4,40,M.idark,0,-0.2,-20,IN);box(26,0.4,40,M.idark,0,GF_H+1,-20,IN);
 box(0.4,GF_H+2,40,M.idark,-13,GF_H/2,-20,IN);box(0.4,GF_H+2,40,M.idark,13,GF_H/2,-20,IN);
@@ -145,50 +165,53 @@ box(26,GF_H+2,0.6,M.idark,0,GF_H/2,-39.7,IN);
 box(14,1.2,1,M.white,0,7.4,-37,IN);box(1.2,8,1,M.white,-6,4,-37,IN);box(1.2,8,1,M.white,6,4,-37,IN);
 box(12,8,0.4,M.curtain,0,4,-38.2,IN);
 const stageGlow=glowSprite(26,'rgba(255,40,55,.8)',.9);stageGlow.position.set(0,5,-37);scene.add(stageGlow);
-for(let x=-5;x<=5;x+=1.4){const pl=new T.PointLight(0xff2436,0.9,16,2);pl.position.set(x,0.6,-34);IN.add(pl);}
+for(let x=-5;x<=5;x+=1.4){const pl=new T.PointLight(0xff2436,1.0,16,2);pl.position.set(x,0.6,-34);IN.add(pl);}
 const haze=glowSprite(30,'rgba(230,20,40,.5)',.5);haze.position.set(0,5,-26);scene.add(haze);
 
-// ---------- lights: soft white exterior ----------
-scene.add(new T.HemisphereLight(0xffffff,0xd8d4cc,0.85));
-scene.add(new T.AmbientLight(0xffffff,0.45));
-const key=new T.DirectionalLight(0xfff3e4,1.05);key.position.set(-18,24,28);key.castShadow=true;
-key.shadow.mapSize.set(2048,2048);const sc=key.shadow.camera;sc.left=-28;sc.right=28;sc.top=30;sc.bottom=-6;sc.near=1;sc.far=130;scene.add(key);
-const fill=new T.DirectionalLight(0xdfe6f0,0.35);fill.position.set(20,12,16);scene.add(fill);
-const stageKey=new T.SpotLight(0xff5a66,3.2,40,0.5,0.6);stageKey.position.set(0,12,-30);stageKey.target.position.set(0,4,-38);scene.add(stageKey);scene.add(stageKey.target);
+// ---------- lights ----------
+const key=new T.DirectionalLight(0xfff4e6,2.2);key.position.set(-16,26,22);key.castShadow=true;
+key.shadow.mapSize.set(2048,2048);const sc=key.shadow.camera;sc.left=-28;sc.right=28;sc.top=30;sc.bottom=-6;sc.near=1;sc.far=130;key.shadow.bias=-0.0003;scene.add(key);
+scene.add(new T.AmbientLight(0xffffff,0.07));
+const stageKey=new T.SpotLight(0xff5a66,4,40,0.5,0.6);stageKey.position.set(0,12,-30);stageKey.target.position.set(0,4,-38);scene.add(stageKey);scene.add(stageKey.target);
+
+// ---------- post: bloom ----------
+const composer=new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene,camera));
+const bloom=new UnrealBloomPass(new T.Vector2(innerWidth,innerHeight),0.32,0.55,0.9);
+composer.addPass(bloom);
+composer.addPass(new OutputPass());
 
 // ---------- scroll journey ----------
-const yc=6.8, FRAME_HALF=16.7;
+const yc=6.8,FRAME_HALF=16.7;
 const K=[
- {p:0.00,pos:[0,yc,30],       look:[0,yc,0]},       // frontal (z set responsively)
- {p:0.30,pos:[ENTRYX*0.5,5.6,15], look:[ENTRYX*0.5,5.3,0]},
- {p:0.54,pos:[ENTRYX,5,8],    look:[ENTRYX,5,-4]},
- {p:0.72,pos:[ENTRYX,4.8,2],  look:[ENTRYX,4.8,-12]},
+ {p:0.00,pos:[0,yc,30],look:[0,yc,0]},
+ {p:0.30,pos:[ENTRYX*0.5,5.6,15],look:[ENTRYX*0.5,5.3,0]},
+ {p:0.54,pos:[ENTRYX,5,8],look:[ENTRYX,5,-4]},
+ {p:0.72,pos:[ENTRYX,4.8,2],look:[ENTRYX,4.8,-12]},
  {p:0.86,pos:[ENTRYX*0.4,5,-7],look:[0,5,-22]},
- {p:1.00,pos:[0,5.4,-16],     look:[0,5.2,-36]},
+ {p:1.00,pos:[0,5.4,-16],look:[0,5.2,-36]},
 ];
-function computeStart(){const asp=innerWidth/innerHeight;const z=FRAME_HALF/(Math.tan(FOV*Math.PI/360)*asp);K[0].pos[2]=Math.max(18,z);}
+function computeStart(){const asp=innerWidth/innerHeight;K[0].pos[2]=Math.max(18,FRAME_HALF/(Math.tan(FOV*Math.PI/360)*asp));}
 const sm=(a,b,t)=>{t=(t-a)/(b-a);t=Math.max(0,Math.min(1,t));return t*t*(3-2*t);};
 function sample(p){let i=0;while(i<K.length-1&&p>K[i+1].p)i++;const A=K[i],B=K[Math.min(i+1,K.length-1)];
   const t=A.p===B.p?0:sm(A.p,B.p,p);const L=(u,v)=>u+(v-u)*t;
   return{pos:[L(A.pos[0],B.pos[0]),L(A.pos[1],B.pos[1]),L(A.pos[2],B.pos[2])],look:[L(A.look[0],B.look[0]),L(A.look[1],B.look[1]),L(A.look[2],B.look[2])]};}
 
 let targetP=0,curP=0;
+const pHero=document.getElementById('pHero'),pMid=document.getElementById('pMid'),pEnd=document.getElementById('pEnd'),cue=document.getElementById('cue');
 function onScroll(){const h=document.getElementById('scroller').offsetHeight-innerHeight;targetP=Math.max(0,Math.min(1,scrollY/h));}
 addEventListener('scroll',onScroll,{passive:true});
-addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);computeStart();});
-const pHero=pHeroEl(),pMid=document.getElementById('pMid'),pEnd=document.getElementById('pEnd'),cue=document.getElementById('cue');
-function pHeroEl(){return document.getElementById('pHero');}
+addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);composer.setSize(innerWidth,innerHeight);computeStart();});
 function panels(p){pHero.classList.toggle('show',p<0.16);pMid.classList.toggle('show',p>0.36&&p<0.5);pEnd.classList.toggle('show',p>0.9);cue.style.opacity=p<0.05?0.75:0;}
 function frame(){
   curP+=(targetP-curP)*0.06;
   const s=sample(curP);
-  camera.position.set(s.pos[0],s.pos[1],s.pos[2]);
-  camera.lookAt(s.look[0],s.look[1],s.look[2]);
-  if(entryGlass[0])entryGlass[0].material.opacity=Math.max(0.08,0.5-curP*0.9);
-  panels(curP);renderer.render(scene,camera);requestAnimationFrame(frame);
+  camera.position.set(s.pos[0],s.pos[1],s.pos[2]);camera.lookAt(s.look[0],s.look[1],s.look[2]);
+  if(entryGlass[0])entryGlass[0].material.opacity=Math.max(0.05,1-curP*1.4);
+  panels(curP);composer.render();requestAnimationFrame(frame);
 }
 computeStart();onScroll();frame();
-setTimeout(()=>{const l=document.getElementById('load');l.style.opacity=0;setTimeout(()=>l.remove(),800);},500);
+setTimeout(()=>{const l=document.getElementById('load');l.style.opacity=0;setTimeout(()=>l.remove(),800);},600);
 </script>
 </body>
 </html>
